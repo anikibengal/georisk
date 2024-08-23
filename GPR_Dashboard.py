@@ -6,23 +6,25 @@ from datetime import datetime
 
 # 設置頁面配置
 st.set_page_config(
-    layout='wide',
+    layout='wide',  # 將佈局設置為居中
     page_title='GPR Index Dashboard'
 )
 
-# 隱藏Streamlit的預設頁腳和標題
+# 隱藏Streamlit的預設頁腳和標題，並調整頂部間距
 st.markdown(
     """
     <style>
         footer {display: none}
         [data-testid="stHeader"] {display: none}
+        .css-1d391kg {padding-top: 1rem;}  # 調整頂部間距
+        .css-18e3th9 {padding-top: 1rem;}  # 調整頁面內容的頂部間距
     </style>
     """, unsafe_allow_html=True
 )
 
 # 資料路徑
 data_path = "data/latest_data.xlsx"
-transposed_data_path = "data/transposed_data.xlsx"
+transposed_data_path = "data\transposed_data.xlsx"
 data_gpr_daily_recent = "https://www.matteoiacoviello.com/gpr_files/data_gpr_daily_recent.xls"
 
 # 設置儀表板標題
@@ -61,9 +63,18 @@ delta_gprd = latest_row['GPRD'] - previous_row['GPRD']
 delta_gprd_act = latest_row['GPRD_ACT'] - previous_row['GPRD_ACT']
 delta_gprd_threat = latest_row['GPRD_THREAT'] - previous_row['GPRD_THREAT']
 
+# 下載並處理VIX數據
+vix_url = "https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv"
+vix_data = pd.read_csv(vix_url)
+vix_data['DATE'] = pd.to_datetime(vix_data['DATE'])
+vix_data = vix_data.rename(columns={'DATE': 'date', 'CLOSE': 'VIX'})
+
+# 合併GPR和VIX數據
+merged_data = pd.merge(gpr_daily, vix_data, on='date', how='inner')
+
 # 在 "Daily" 標籤頁中放置 QQ_col 和 line_col
 with tab1:
-    QQ_col, line_col = st.columns([0.3, 1.5])
+    QQ_col, line_col = st.columns([0.2, 1.4])  # 調整列的比例，使圖表更窄
 
     with QQ_col:
         st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
@@ -76,23 +87,43 @@ with tab1:
 
     with line_col:
         # 過濾日期在2020年之後的數據
-        gpr_daily_filtered = gpr_daily[gpr_daily['date'] >= '2024-01-01']
+        gpr_daily_filtered = merged_data[merged_data['date'] >= '2024-01-01']
 
-        # 繪製GPRD, GPRD_ACT, GPRD_THREAT的線圖
+        # 繪製GPRD, GPRD_ACT, GPRD_THREAT和VIX的線圖
         fig = go.Figure()
 
         fig.add_trace(go.Scatter(x=gpr_daily_filtered['date'], y=gpr_daily_filtered['GPRD'], mode='lines', name='GPRD'))
         fig.add_trace(go.Scatter(x=gpr_daily_filtered['date'], y=gpr_daily_filtered['GPRD_ACT'], mode='lines', name='GPRD_ACT'))
         fig.add_trace(go.Scatter(x=gpr_daily_filtered['date'], y=gpr_daily_filtered['GPRD_THREAT'], mode='lines', name='GPRD_THREAT'))
+        fig.add_trace(go.Scatter(x=gpr_daily_filtered['date'], y=gpr_daily_filtered['VIX'], mode='lines', name='VIX', yaxis='y2'))
 
         fig.update_layout(
-            title="GPR Daily Metrics (2024 and after)",
+            title="GPR Daily Metrics and VIX (2024 and after)",
             legend_title="Metrics",
             margin=dict(l=20, r=20, t=40, b=20),
-            colorway=px.colors.qualitative.Prism  # 可以更改為其他配色方案，如 Plotly, Dark2, Antique, Prism, Vivid
+            colorway=px.colors.qualitative.Prism,  # 可以更改為其他配色方案，如 Plotly, Dark2, Antique, Prism, Vivid
+            yaxis=dict(title="GPR Metrics"),
+            yaxis2=dict(title="VIX", overlaying='y', side='right'),
+            width=800,  # 設定圖表的寬度
+            legend=dict(
+                orientation="v",  # 垂直排列
+                yanchor="top",
+                y=1,
+                xanchor="left",
+                x=1.05  # 調整圖例的位置到右邊
+            )
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+    # 添加說明文字
+    st.markdown("""
+    <div style='font-size: 12px;'>
+    ✨<b>GPRD (Geopolitical Risk Index)</b>：這個指數計算每月10家報紙中不利地緣政治事件相關的文章數量佔總新聞文章數量的比例，反映總體地緣政治風險。<br>
+    ✨<b>GPRD_ACT (Geopolitical Acts Index)</b>：這個子指數專注於實際發生的地緣政治行動，包括戰爭的開始、戰爭的升級和恐怖行動。<br>
+    ✨<b>GPRD_THEAT (Geopolitical Threats Index)</b>：這個子指數專注於地緣政治威脅，包括戰爭威脅、和平威脅、軍事集結、核威脅和恐怖威脅。
+    </div>
+    """, unsafe_allow_html=True)
 
 # 在 "Country" 標籤頁中放置 chart_col 和 data_col
 with tab2:
