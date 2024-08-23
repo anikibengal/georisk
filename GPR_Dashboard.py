@@ -74,7 +74,7 @@ merged_data = pd.merge(gpr_daily, vix_data, on='date', how='inner')
 
 # 在 "Daily" 標籤頁中放置 QQ_col 和 line_col
 with tab1:
-    QQ_col, line_col = st.columns([0.2, 1.4])  # 調整列的比例，使圖表更窄
+    QQ_col, line_col = st.columns([0.2, 1.5])  # 調整列的比例，使圖表更窄
 
     with QQ_col:
         st.markdown("<div style='margin-bottom: 90px;'></div>", unsafe_allow_html=True)
