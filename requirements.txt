@@ -6,3 +6,4 @@ streamlit_extras==0.4.2
 streamlit-elements
 statsmodels
 openpyxl
+xlrd
