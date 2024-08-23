@@ -86,8 +86,19 @@ with tab1:
         st.metric(label="**GPRD_THREAT**", value=f"{latest_row['GPRD_THREAT']:.2f}", delta=f"{delta_gprd_threat:.2f}", delta_color="inverse")
 
     with line_col:
-        # 過濾日期在2020年之後的數據
-        gpr_daily_filtered = merged_data[merged_data['date'] >= '2024-01-01']
+        # 添加日期範圍選擇器
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start date", value=datetime(2020, 1, 1), format="YYYY-MM-DD")
+        with date_col2:
+            end_date = st.date_input("End date", value="today", format="YYYY-MM-DD")
+
+        # 將日期轉換為datetime格式
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+
+        # 過濾日期範圍內的數據
+        gpr_daily_filtered = merged_data[(merged_data['date'] >= start_date) & (merged_data['date'] <= end_date)]
 
         # 繪製GPRD, GPRD_ACT, GPRD_THREAT和VIX的線圖
         fig = go.Figure()
@@ -98,7 +109,7 @@ with tab1:
         fig.add_trace(go.Scatter(x=gpr_daily_filtered['date'], y=gpr_daily_filtered['VIX'], mode='lines', name='VIX', yaxis='y2'))
 
         fig.update_layout(
-            title="GPR Daily Metrics and VIX (2024 and after)",
+            title="GPR Daily Metrics and VIX",
             legend_title="Metrics",
             margin=dict(l=20, r=20, t=40, b=20),
             colorway=px.colors.qualitative.Prism,  # 可以更改為其他配色方案，如 Plotly, Dark2, Antique, Prism, Vivid
@@ -110,7 +121,7 @@ with tab1:
                 yanchor="top",
                 y=1,
                 xanchor="left",
-                x=1.05  # 調整圖例的位置到右邊
+                x=1.02  # 調整圖例的位置到右邊
             )
         )
 
@@ -127,7 +138,7 @@ with tab1:
 
 # 在 "Country" 標籤頁中放置 chart_col 和 data_col
 with tab2:
-    chart_col, data_col = st.columns([1.6, 0.7])
+    chart_col, data_col = st.columns([1.6, 0.8])
 
     # 確保資料中有Country和GPR欄位
     if 'Country' in latest_data.columns and 'GPR' in latest_data.columns:
