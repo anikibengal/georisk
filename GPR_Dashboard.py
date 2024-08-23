@@ -112,7 +112,7 @@ with tab1:
             title="GPR Daily Metrics and VIX",
             legend_title="Metrics",
             margin=dict(l=20, r=20, t=40, b=20),
-            colorway=px.colors.qualitative.Plotly,  # 可以更改為其他配色方案，如 Plotly, Dark2, Antique, Prism, Vivid
+            colorway=px.colors.qualitative.Vivid,  # 可以更改為其他配色方案，如 Plotly, Dark2, Antique, Prism, Vivid
             yaxis=dict(title="GPR Metrics"),
             yaxis2=dict(title="VIX", overlaying='y', side='right'),
             width=800,  # 設定圖表的寬度
