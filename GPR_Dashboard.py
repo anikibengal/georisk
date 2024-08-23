@@ -121,7 +121,7 @@ with tab1:
                 yanchor="top",
                 y=1,
                 xanchor="left",
-                x=1.02  # 調整圖例的位置到右邊
+                x=1.1  # 調整圖例的位置到右邊
             )
         )
 
