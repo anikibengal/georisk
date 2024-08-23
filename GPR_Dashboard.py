@@ -21,7 +21,7 @@ st.markdown(
 )
 
 # 資料路徑
-data_path = "/data/latest_data.xlsx"
+data_path = "data/latest_data.xlsx"
 transposed_data_path = "data/transposed_data.xlsx"
 data_gpr_daily_recent = "https://www.matteoiacoviello.com/gpr_files/data_gpr_daily_recent.xls"
 
