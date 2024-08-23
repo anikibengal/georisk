@@ -77,7 +77,7 @@ with tab1:
     QQ_col, line_col = st.columns([0.2, 1.4])  # 調整列的比例，使圖表更窄
 
     with QQ_col:
-        st.markdown("<div style='margin-bottom: 40px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom: 80px;'></div>", unsafe_allow_html=True)
         st.markdown(f"Date:{latest_row['date'].strftime('%Y-%m-%d')}")
         st.metric(label="**GPRD**", value=f"{latest_row['GPRD']:.2f}", delta=f"{delta_gprd:.2f}", delta_color="inverse")
         st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
